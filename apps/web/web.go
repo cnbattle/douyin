@@ -15,6 +15,7 @@ import (
 )
 
 func Run() {
+	gin.SetMode(config.V.GetString("ginModel"))
 	r := gin.Default()
 	r.POST("/", handle)
 	_ = r.Run() // listen and serve on 0.0.0.0:8080
