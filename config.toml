@@ -1,0 +1,14 @@
+title = "TOML Example"
+[app]
+packageName = "com.ss.android.ugc.aweme" # app包名
+startPath = ".main.MainActivity" # 包 首页path
+restart = 60 # 重新打开时间  单位秒
+sleep = 60 # 重新打开睡眠时间  单位秒
+
+[swipe]
+# 滑动 开始和结束 像素坐标值
+startX = 500
+startY = 1000
+endX = 489
+endY = 123
+sleep = 200 # 滑动等待时间  单位毫秒
