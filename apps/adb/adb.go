@@ -2,16 +2,15 @@ package adb
 
 import (
 	"fmt"
+	"github.com/cnbattle/douyin/config"
 	"os"
 	"os/exec"
-	"github.com/cnbattle/douyin/config"
 	"time"
 )
 
 func Run() {
 START:
 	start := time.Now().Unix()
-
 	runApp()
 	defer closeApp()
 	for {
@@ -31,7 +30,7 @@ func runApp() {
 		config.V.GetString("app.packageName"), config.V.GetString("app.startPath"),
 	))
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	_ = cmd.Run()
 }
 
 func swipe() {
@@ -42,11 +41,11 @@ func swipe() {
 		config.V.GetString("swipe.endY"),
 	)
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	_ = cmd.Run()
 }
 
 func closeApp() {
 	cmd := exec.Command("./static/adb.exe", "shell", "am", "force-stop", config.V.GetString("app.packageName"))
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	_ = cmd.Run()
 }
