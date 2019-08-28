@@ -5,8 +5,6 @@ module.exports = {
     summary: 'the default rule for AnyProxy',
 
     /**
-     *
-     *
      * @param {object} requestDetail
      * @param {string} requestDetail.protocol
      * @param {object} requestDetail.requestOptions
@@ -25,17 +23,19 @@ module.exports = {
             },
             body: 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw=='
         };
+        // 屏蔽app请求的图片数据 加快 app的响应速度
         if (/byteimg\.com/i.test(requestDetail.url)) { //图片链接
             return {
                 response: localResponse
             }
-        }        
+        }
+        // 屏蔽app请求的视频数据 加快 app的响应速度
         if (/ixigua\.com/i.test(requestDetail.url)) { //视频链接
             return {
                 response: localResponse
             }
         }
-        
+        // 屏蔽app请求google服务 加快 app的响应速度
         if (/google/i.test(requestDetail.url)) {
             return {
                 response: {
@@ -52,12 +52,11 @@ module.exports = {
 
 
     /**
-     *
-     *
      * @param {object} requestDetail
      * @param {object} responseDetail
      */
     * beforeSendResponse(requestDetail, responseDetail) {
+        // 匹配请求推荐列表的接口请求
         if(/aweme\/v1\/feed/i.test(requestDetail.url)){
             var json = responseDetail.response.body.toString()
             //将匹配到的json发送到自己的服务器
@@ -84,8 +83,6 @@ module.exports = {
     },
 
     /**
-     *
-     *
      * @param {any} requestDetail
      * @param {any} error
      * @returns
@@ -96,8 +93,6 @@ module.exports = {
 
 
     /**
-     *
-     *
      * @param {any} requestDetail
      * @param {any} error
      * @returns
