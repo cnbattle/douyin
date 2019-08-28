@@ -108,7 +108,7 @@ module.exports = {
 };
 
 
-//将json发送到服务器，str为json内容，url为历史消息页面地址，path是接收程序的路径和文件名
+//将json发送到服务器，str为json内容，path是接收程序的路径和文件名
 function HttpPost(data, path) {
     var http_url = 'http://127.0.0.1:8080' + path;
     var content = require('querystring').stringify(data);
