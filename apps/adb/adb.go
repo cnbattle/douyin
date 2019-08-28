@@ -5,6 +5,7 @@ import (
 	"github.com/cnbattle/douyin/config"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 )
 
@@ -26,7 +27,7 @@ START:
 
 func runApp() {
 	closeApp()
-	cmd := exec.Command("./static/adb.exe", "shell", "am", "start", "-n", fmt.Sprintf("%v/%v",
+	cmd := exec.Command(getRunCli(), "shell", "am", "start", "-n", fmt.Sprintf("%v/%v",
 		config.V.GetString("app.packageName"), config.V.GetString("app.startPath"),
 	))
 	cmd.Stdout = os.Stdout
@@ -34,7 +35,7 @@ func runApp() {
 }
 
 func swipe() {
-	cmd := exec.Command("./static/adb.exe", "shell", "input", "swipe",
+	cmd := exec.Command(getRunCli(), "shell", "input", "swipe",
 		config.V.GetString("swipe.startX"),
 		config.V.GetString("swipe.startY"),
 		config.V.GetString("swipe.endX"),
@@ -45,7 +46,14 @@ func swipe() {
 }
 
 func closeApp() {
-	cmd := exec.Command("./static/adb.exe", "shell", "am", "force-stop", config.V.GetString("app.packageName"))
+	cmd := exec.Command(getRunCli(), "shell", "am", "force-stop", config.V.GetString("app.packageName"))
 	cmd.Stdout = os.Stdout
 	_ = cmd.Run()
+}
+
+func getRunCli() string {
+	if runtime.GOOS == "windows" {
+		return "./static/adb.exe"
+	}
+	return "adb"
 }
