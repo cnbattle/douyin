@@ -1,4 +1,5 @@
-title = "TOML Example"
+smallLike = 10000 # 抓取最小视频赞数,仅抓取大于此值的视频
+
 [app]
 packageName = "com.ss.android.ugc.aweme" # app包名
 startPath = ".main.MainActivity" # 包 首页path

@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/cnbattle/douyin/config"
 	"github.com/cnbattle/douyin/database"
 	"github.com/cnbattle/douyin/model"
 	"github.com/cnbattle/douyin/utils"
@@ -41,7 +42,7 @@ func handle(ctx *gin.Context) {
 func handleJson(data model.Data) {
 	for _, item := range data.AwemeList {
 		// 判断是否是广告
-		if item.IsAds == true || item.Statistics.DiggCount < 10000 {
+		if item.IsAds == true || item.Statistics.DiggCount < config.V.GetInt("smallLike") {
 			continue
 		}
 		log.Println("开始处理数据:", item.Desc)
