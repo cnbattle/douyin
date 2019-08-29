@@ -12,13 +12,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 func Run() {
-	gin.SetMode(config.V.GetString("ginModel"))
+	gin.SetMode(config.V.GetString("gin.model"))
 	r := gin.Default()
 	r.POST("/", handle)
-	_ = r.Run() // listen and serve on 0.0.0.0:8080
+
+	_ = r.Run(":" + strconv.Itoa(config.V.GetInt("gin.addr")))
 }
 
 func handle(ctx *gin.Context) {

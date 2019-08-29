@@ -1,10 +1,13 @@
 smallLike = 10000 # 抓取最小视频赞数,仅抓取大于此值的视频
-ginModel = "release" # 设置gin模式 release debug test
 isDownload = 1 # 是否下载远程 用户头像 封面图 视频 到本地  0否1是
 
+[gin]
+addr = 8080 #设置gin listen 端口
+model = "release" # 设置gin模式 release debug test
+
 [app]
-packageName = "com.ss.android.ugc.aweme" # app包名
-startPath = ".main.MainActivity" # 包 首页path
+packageName = "com.ss.android.ugc.aweme" # 抖音app包名
+startPath = ".main.MainActivity" # 抖音app包首页path
 restart = 60 # 重新打开时间  单位秒
 sleep = 60 # 重新打开睡眠时间  单位秒
 
