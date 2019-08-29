@@ -48,12 +48,19 @@ func handleJson(data model.Data) {
 		}
 		log.Println("开始处理数据:", item.Desc)
 
+		isDownload := config.V.GetInt("isDownload")
+		var localAvatar, localCover, localVideo string
+		var err error
 		coverUrl, videoUrl := getCoverVideo(&item)
-		// 下载封面图 视频 头像图
-		localAvatar, localCover, localVideo, err := downloadHttpFile(item.Author.AvatarThumb.UrlList[0], videoUrl, coverUrl)
-		if err != nil {
-			log.Println("下载封面图 视频 头像图失败:", err)
-			continue
+		if isDownload == 1 {
+			// 下载封面图 视频 头像图
+			localAvatar, localCover, localVideo, err = downloadHttpFile(item.Author.AvatarThumb.UrlList[0], videoUrl, coverUrl)
+			if err != nil {
+				log.Println("下载封面图 视频 头像图失败:", err)
+				continue
+			}
+		} else {
+			localAvatar, localCover, localVideo = item.Author.AvatarThumb.UrlList[0], coverUrl, videoUrl
 		}
 		// 写入数据库
 		var video model.Video

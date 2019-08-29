@@ -1,5 +1,6 @@
 smallLike = 10000 # 抓取最小视频赞数,仅抓取大于此值的视频
 ginModel = "release" # 设置gin模式 release debug test
+isDownload = 1 # 是否下载远程 用户头像 封面图 视频 到本地  0否1是
 
 [app]
 packageName = "com.ss.android.ugc.aweme" # app包名

@@ -16,7 +16,7 @@ type Item struct {
 	Video        video       `json:"video"`
 	IsAds        bool        `json:"is_ads"`
 	Duration     int         `json:"duration"`
-	GroupId      string         `json:"group_id"`
+	GroupId      string      `json:"group_id"`
 	AuthorUserId int         `json:"author_user_id"`
 	LongVideo    []longVideo `json:"long_video"`
 	Statistics   statistics  `json:"statistics"`
