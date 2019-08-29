@@ -6,6 +6,9 @@
 
 ![](example.gif)
 
+## 特点
+- 可设置仅抓取大于xx赞的视频
+
 ## 使用
 
 1. 按照anyproxy, 详细请自己google
