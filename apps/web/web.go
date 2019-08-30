@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/cnbattle/douyin/config"
 	"github.com/cnbattle/douyin/database"
@@ -117,6 +118,10 @@ func download(url, saveFile string) error {
 		return err
 	}
 	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return errors.New("下载状态码错误:" + strconv.Itoa(res.StatusCode))
+	}
+
 	f, err := os.Create(saveFile)
 	if err != nil {
 		_ = os.Remove(saveFile)
