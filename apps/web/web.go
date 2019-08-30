@@ -98,16 +98,16 @@ func downloadHttpFile(avatarUrl, videoUrl string, coverUrl string) (string, stri
 	return localAvatar, localCover, localVideo, nil
 }
 
-// getCoverVideo
-func getCoverVideo(item *model.Item) (string, string) {
-	coverUrl := item.Video.Cover.UrlList[0]
-	videoUrl := item.Video.PlayAddr.UrlList[len(item.Video.PlayAddr.UrlList)-1]
-	// 是否是长视频
-	//if len(item.LongVideo) > 0 {
-	//	coverUrl = item.LongVideo[0].Video.Cover.UrlList[0]
-	//	videoUrl = item.LongVideo[0].Video.PlayAddr.UrlList[0]
-	//}
-	return coverUrl, videoUrl
+// getCoverVideo 获取封面图视频地址
+func getCoverVideo(item *model.Item) (coverUrl, videoUrl string) {
+	isDownload := config.V.GetInt("isDownload")
+	coverUrl = item.Video.Cover.UrlList[0]
+	if isDownload == 1 {
+		videoUrl = item.Video.PlayAddr.UrlList[0]
+		return
+	}
+	videoUrl = item.Video.PlayAddr.UrlList[len(item.Video.PlayAddr.UrlList)-1]
+	return
 }
 
 // download 下载文件
