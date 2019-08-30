@@ -44,7 +44,7 @@ func handle(ctx *gin.Context) {
 
 func handleJson(data model.Data) {
 	for _, item := range data.AwemeList {
-		// 判断是否是广告
+		// 判断是否是广告 点赞数是否大于设定值
 		if item.IsAds == true || item.Statistics.DiggCount < config.V.GetInt("smallLike") {
 			continue
 		}
@@ -72,6 +72,7 @@ func handleJson(data model.Data) {
 		video.Desc = item.Desc
 		video.CoverPath = localCover
 		video.VideoPath = localVideo
+		video.IsDownload = isDownload
 		database.Local.Create(&video)
 	}
 }
