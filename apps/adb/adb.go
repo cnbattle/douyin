@@ -53,7 +53,7 @@ func closeApp() {
 
 func getRunCli() string {
 	if runtime.GOOS == "windows" {
-		return "./static/adb.exe"
+		return "./static/adb/adb.exe"
 	}
 	return "adb"
 }
