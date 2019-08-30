@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/cnbattle/douyin/config"
 	"github.com/cnbattle/douyin/database"
@@ -113,15 +112,14 @@ func getCoverVideo(item *model.Item) (coverUrl, videoUrl string) {
 
 // download 下载文件
 func download(url, saveFile string) error {
-	res, err := http.Get(url)
-	if err != nil {
-		return err
-	}
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Add("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1")
+	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
+	res, err := client.Do(req)
 	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return errors.New("下载状态码错误:" + strconv.Itoa(res.StatusCode))
-	}
-
 	f, err := os.Create(saveFile)
 	if err != nil {
 		_ = os.Remove(saveFile)
