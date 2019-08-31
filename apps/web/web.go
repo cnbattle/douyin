@@ -67,6 +67,7 @@ func handleJson(data model.Data) {
 		// 写入数据库
 		var video model.Video
 		video.AwemeId = item.AwemeId
+		video.AuthorId = item.Author.Uid
 		video.Nickname = item.Author.Nickname
 		video.Avatar = localAvatar
 		video.Desc = item.Desc

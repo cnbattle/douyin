@@ -5,6 +5,7 @@ import "github.com/jinzhu/gorm"
 type Video struct {
 	gorm.Model
 	AwemeId      string `gorm:"unique;not null"`
+	AuthorId     string `gorm:"varchar(64)"`
 	Nickname     string `gorm:"varchar(64)"`
 	Avatar       string `gorm:"varchar(64)"`
 	Desc         string `gorm:"varchar(255)"`
