@@ -4,7 +4,7 @@
 
 技术栈：golang adb nodejs anyproxy
 
-![](example.gif)
+![](example/example.gif)
 
 ## 特点
 - 可设置仅抓取大于xx赞的视频
@@ -39,3 +39,7 @@
 - 个人能力一般,有很多编码不规范的地方请包涵
 - 有能力的朋友可以根据个人需求修改,如果可以请提交pr
 - 如果使用有问题,请提交`issues` 或加我同名微信号,请备注github过来的,谢谢
+
+## 捐赠
+
+![](example/donate.jpg)
