@@ -70,6 +70,9 @@ func handleJson(data model.Data) {
 		video.Nickname = item.Author.Nickname
 		video.Avatar = localAvatar
 		video.Desc = item.Desc
+		video.DiggCount = string(item.Statistics.DiggCount)
+		video.CommentCount = string(item.Statistics.CommentCount)
+		video.ShareUrl = item.ShareInfo.ShareUrl
 		video.CoverPath = localCover
 		video.VideoPath = localVideo
 		video.IsDownload = isDownload
