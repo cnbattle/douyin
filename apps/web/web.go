@@ -123,6 +123,9 @@ func download(url, saveFile string) error {
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.Header.Add("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8")
 	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 	defer res.Body.Close()
 	f, err := os.Create(saveFile)
 	if err != nil {
