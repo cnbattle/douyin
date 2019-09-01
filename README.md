@@ -12,21 +12,23 @@
 
 ## 使用
 
-1. 安装anyproxy,详细请自己google
+1 安装anyproxy,详细请自己google
 
-1. 使用android虚拟机或真机,安装抖音,配置anyproxy https代理
+2 使用android虚拟机或真机,安装抖音,配置anyproxy https代理
 
-1. 修改anyproxy配置文件,详见 angproxy目录下文件,具体看`beforeSendRequest` `beforeSendResponse` 函数代码
+3 修改anyproxy配置文件,详见 angproxy目录下文件,具体看`beforeSendRequest` `beforeSendResponse` 函数代码
 
-1. 启动anyproxy(用pm2管理启动最佳)
+4 启动anyproxy(用pm2管理启动最佳)
 
-1. 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
+5 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
 
-1. 运行 本项目程序 `go run main.go` 或 编辑运行也可
+6 运行 本项目程序 
+- 一起运行 `adb` 和 `web` 服务  :`go run main.go` 或 编辑运行也可
+- 单独运行:`go run apps/adb/adb.go`和`go run apps/web/web.go`  或 编辑运行也可
 
-1. 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
+7 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
 
-1. 最后根据个人需要上传处理即可
+8 最后根据个人需要上传处理即可
 
 ## 待优化的地方
 
