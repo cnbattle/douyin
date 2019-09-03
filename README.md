@@ -24,7 +24,7 @@
 
 6 运行 本项目程序 
 - 一起运行 `adb` 和 `web` 服务  :`go run main.go` 或 编辑运行也可
-- 单独运行:`go run apps/adb/adb.go`和`go run apps/web/web.go`  或 编辑运行也可
+- 单独运行:`go run apps/recommend/main.go`和`go run apps/web/main.go`或编辑运行也可
 
 7 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
 
