@@ -16,16 +16,15 @@
 
 ## 使用
 
-1 安装`mitm-proxy.crt`证书到相关设备，`虚拟机或真机`
+1. 安装`mitm-proxy.crt`证书到相关设备，`虚拟机或真机`
 
-2 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
+2. 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
 
-6 运行 本项目程序 
-- `go run main.go` 或 编辑运行
+3. 运行本项目程序 `go run main.go` 或 编辑运行
 
-7 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
+4. 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
 
-8 最后根据个人需要上传处理即可
+5. 最后根据个人需要上传处理即可
 
 ## 待优化的地方
 
