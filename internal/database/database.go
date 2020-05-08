@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/cnbattle/douyin/model"
+	"github.com/cnbattle/douyin/internal/database/model"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"

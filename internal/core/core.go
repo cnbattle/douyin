@@ -1,48 +1,18 @@
-package web
+package core
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/cnbattle/douyin/config"
-	"github.com/cnbattle/douyin/database"
-	"github.com/cnbattle/douyin/model"
-	"github.com/cnbattle/douyin/utils"
-	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+
+	"github.com/cnbattle/douyin/internal/config"
+	"github.com/cnbattle/douyin/internal/database"
+	"github.com/cnbattle/douyin/internal/database/model"
+	"github.com/cnbattle/douyin/internal/utils"
 )
 
-func Start() {
-	gin.SetMode(config.V.GetString("gin.model"))
-	r := gin.Default()
-	r.POST("/", handle)
-
-	_ = r.Run(":" + strconv.Itoa(config.V.GetInt("gin.addr")))
-}
-
-func handle(ctx *gin.Context) {
-	body := ctx.DefaultPostForm("json", "null")
-	status := 0
-	if body == "null" {
-		status = 1
-	}
-
-	var data model.Data
-	err := json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		fmt.Println(err)
-	}
-	go handleJson(data)
-	ctx.JSON(200, gin.H{
-		"status":  status,
-		"message": "success",
-	})
-}
-
-func handleJson(data model.Data) {
+func HandleJson(data model.Data) {
 	for _, item := range data.AwemeList {
 		// 判断是否是广告 点赞数是否大于设定值
 		if item.IsAds == true || item.Statistics.DiggCount < config.V.GetInt("smallLike") {

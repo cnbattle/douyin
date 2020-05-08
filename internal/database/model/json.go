@@ -44,8 +44,8 @@ type longVideo struct {
 type uriStr struct {
 	Uri     string   `json:"uri"`
 	UrlList []string `json:"url_list"`
-	width   int      `json:"width"`
-	height  int      `json:"height"`
+	Width   int      `json:"width"`
+	Height  int      `json:"height"`
 }
 
 type statistics struct {

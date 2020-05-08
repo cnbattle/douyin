@@ -1,10 +1,12 @@
 # 抖音推荐列表视频爬虫方案
 
-> 最近测试可用时间：`2020.05.08`
+> 最近测试可用时间：`2020.05.08` 
+
+> 老版本请切换到`old`分支查看
 
 基于APP爬取
 
-技术栈：golang adb nodejs anyproxy
+技术栈：`golang` `adb`
 
 ![](example/example.gif)
 
@@ -14,22 +16,12 @@
 
 ## 使用
 
-1 安装anyproxy,详细请自己google
+1 安装`mitm-proxy.crt`证书到相关设备，`虚拟机或真机`
 
-2 使用android虚拟机或真机,安装抖音,配置anyproxy https代理
-
-3 修改anyproxy配置文件,详见 angproxy目录下文件,具体看`beforeSendRequest` `beforeSendResponse` 函数代码
- - Linux : `/usr/lib/node_modules/anyproxy/lib/`
- - Windows : `C:\Users\Administrator\AppData\Roaming\npm\node_modules\anyproxy\lib`
- - Mac : `/usr/local/lib/node_modules/anyproxy/lib/`
-
-4 启动anyproxy(用pm2管理启动最佳)
-
-5 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
+2 复制 `config.example.toml` 为 `config.toml`,并根据自己需求修改参数
 
 6 运行 本项目程序 
-- 一起运行 `adb` 和 `web` 服务  :`go run main.go` 或 编辑运行也可
-- 单独运行:`go run apps/recommend/main.go`和`go run apps/web/main.go`或编辑运行也可
+- `go run main.go` 或 编辑运行
 
 7 若开启下载会生成一个 `database.db`的sqlite3数据库文件,字符详见`model/videos.go`文件,静态文件(用户头像,视频封面图,视频文件)将放在`download/[avatar,cover,video]`目录下
 
@@ -47,6 +39,12 @@
 - 有能力的朋友可以根据个人需求修改,如果可以请提交pr
 - 如果使用有问题,请提交`issues` 或加我同名微信号,请备注github过来的,谢谢
 
+## 感谢，本项目依赖一下go pkg
+```
+github.com/jinzhu/gorm v1.9.12
+github.com/ouqiang/goproxy v1.0.4
+github.com/spf13/viper v1.6.3
+```
 ## 捐赠
 
 ![](example/donate.jpg)
