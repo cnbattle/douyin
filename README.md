@@ -39,11 +39,11 @@
 - 有能力的朋友可以根据个人需求修改,如果可以请提交pr
 - 如果使用有问题,请提交`issues` 或加我同名微信号,请备注github过来的,谢谢
 
-## 感谢，本项目依赖一下go pkg
+## 感谢，本项目依赖以下go pkg
 ```
-github.com/jinzhu/gorm v1.9.12
-github.com/ouqiang/goproxy v1.0.4
-github.com/spf13/viper v1.6.3
+github.com/jinzhu/gorm
+github.com/ouqiang/goproxy
+github.com/spf13/viper
 ```
 ## 捐赠
 
