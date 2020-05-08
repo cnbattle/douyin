@@ -1,5 +1,7 @@
 # 抖音推荐列表视频爬虫方案
 
+> 最近测试可用时间：`2020.05.08`
+
 基于APP爬取
 
 技术栈：golang adb nodejs anyproxy
@@ -17,6 +19,9 @@
 2 使用android虚拟机或真机,安装抖音,配置anyproxy https代理
 
 3 修改anyproxy配置文件,详见 angproxy目录下文件,具体看`beforeSendRequest` `beforeSendResponse` 函数代码
+ - Linux : `/usr/lib/node_modules/anyproxy/lib/`
+ - Windows : `C:\Users\Administrator\AppData\Roaming\npm\node_modules\anyproxy\lib`
+ - Mac : `/usr/local/lib/node_modules/anyproxy/lib/`
 
 4 启动anyproxy(用pm2管理启动最佳)
 
