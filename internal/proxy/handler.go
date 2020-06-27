@@ -3,14 +3,13 @@ package proxy
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/ouqiang/goproxy"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/ouqiang/goproxy"
 
 	"github.com/cnbattle/douyin/internal/core"
 	"github.com/cnbattle/douyin/internal/database/model"
@@ -62,9 +61,12 @@ func (e *EventHandler) BeforeResponse(ctx *goproxy.Context, resp *http.Response,
 		return
 	}
 	// 处理
-	if strings.EqualFold(ctx.Req.URL.Host, "aweme-lq.snssdk.com") &&
-		strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/feed/") {
-		response, _ := ioutil.ReadAll(resp.Body)
+	if strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/feed/") {
+		response, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Println(err)
+			return
+		}
 		// gzip
 		body, err := utils.ParseGzip(response)
 		if err != nil {
