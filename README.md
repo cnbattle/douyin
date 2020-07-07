@@ -38,6 +38,11 @@
 - 有能力的朋友可以根据个人需求修改,如果可以请提交pr
 - 如果使用有问题,请提交`issues` 或加我同名微信号,请备注github过来的,谢谢
 
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/cnbattle/douyin.svg)](https://starchart.cc/cnbattle/douyin)
+      
+
 ## 感谢，本项目依赖以下go pkg
 ```
 github.com/jinzhu/gorm
