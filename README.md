@@ -45,7 +45,7 @@
 
 ## 感谢，本项目依赖以下go pkg
 ```
-github.com/jinzhu/gorm
+gorm.io/gorm
 github.com/ouqiang/goproxy
 github.com/spf13/viper
 ```
