@@ -43,12 +43,18 @@
 [![Stargazers over time](https://starchart.cc/cnbattle/douyin.svg)](https://starchart.cc/cnbattle/douyin)
       
 
-## 感谢，本项目依赖以下go pkg
+## Thanks
+
 ```
 gorm.io/gorm
 github.com/ouqiang/goproxy
 github.com/spf13/viper
 ```
+## Development Tool (IDE) For Jetbrains
+
+Thanks for [Jetbrains Open Source Licenses](https://www.jetbrains.com/community/opensource/#support).
+
+
 ## 捐赠
 
 ![](example/donate.jpg)
