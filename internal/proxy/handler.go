@@ -60,8 +60,44 @@ func (e *EventHandler) BeforeResponse(ctx *goproxy.Context, resp *http.Response,
 	if err != nil {
 		return
 	}
-	// 处理
-	if strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/feed/") {
+	// /aweme/v1/general/search/single/  综合搜索
+	// /aweme/v1/search/item/ 视频
+	//if strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/general/search/single/") {
+	//	response, err := ioutil.ReadAll(resp.Body)
+	//	if err != nil {
+	//		log.Println(err)
+	//		return
+	//	}
+	//	// gzip
+	//	body, err := utils.ParseGzip(response)
+	//	if err != nil {
+	//		log.Println(err)
+	//		return
+	//	}
+	//	var filename = "./single.json"
+	//	var f *os.File
+	//	/***************************** 第一种方式: 使用 io.WriteString 写入文件 ***********************************************/
+	//	if utils.CheckFileIsExist(filename) { //如果文件存在
+	//		f, _ = os.OpenFile(filename, os.O_APPEND, 0666) //打开文件
+	//		fmt.Println("文件存在")
+	//	} else {
+	//		f, _ = os.Create(filename) //创建文件
+	//		fmt.Println("文件不存在")
+	//	}
+	//	_, _ = io.WriteString(f, string(body)) //写入文件(字符串)
+	//	//var data model.Data
+	//	//err = json.Unmarshal(body, &data)
+	//	//if err != nil {
+	//	//	log.Println(err)
+	//	//	return
+	//	//}
+	//	//go core.HandleJson(data)
+	//	// resp.Body 只能读取一次, 读取后必须再放回去
+	//	resp.Body = ioutil.NopCloser(bytes.NewReader(response))
+	//}
+
+	// 处理 推荐列表接口  搜索页视频列表接口
+	if strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/feed/") || strings.EqualFold(ctx.Req.URL.Path, "/aweme/v1/search/item/") {
 		response, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			log.Println(err)

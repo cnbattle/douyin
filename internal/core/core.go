@@ -17,6 +17,7 @@ func HandleJson(data model.Data) {
 	for _, item := range data.AwemeList {
 		// 判断是否是广告 点赞数是否大于设定值
 		if item.IsAds == true || item.Statistics.DiggCount < config.V.GetInt("smallLike") {
+			log.Println("数据:", item.Desc, "continue")
 			continue
 		}
 		log.Println("开始处理数据:", item.Desc)

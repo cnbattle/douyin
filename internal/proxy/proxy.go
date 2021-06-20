@@ -1,10 +1,11 @@
 package proxy
 
 import (
-	"github.com/cnbattle/douyin/internal/config"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/cnbattle/douyin/internal/config"
 
 	"github.com/ouqiang/goproxy"
 )
