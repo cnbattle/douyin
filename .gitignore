@@ -1,7 +1,5 @@
 .idea/
-vendor/
 config.toml
 database.db
-go.sum
 *.exe
 dist
