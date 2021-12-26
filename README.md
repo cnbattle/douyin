@@ -56,7 +56,6 @@ github.com/spf13/viper
 
 Thanks for [Jetbrains Open Source Licenses](https://www.jetbrains.com/community/opensource/#support).
 
+## 声明
 
-## 捐赠
-
-![](example/donate.jpg)
+本项目只做个人学习研究之用，不得用于商业用途！
