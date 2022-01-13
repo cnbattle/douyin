@@ -60,6 +60,9 @@ func buildExprs(exprs []Expression, builder Builder, joinCond string) {
 			case Expr:
 				sql := strings.ToLower(v.SQL)
 				wrapInParentheses = strings.Contains(sql, "and") || strings.Contains(sql, "or")
+			case NamedExpr:
+				sql := strings.ToLower(v.SQL)
+				wrapInParentheses = strings.Contains(sql, "and") || strings.Contains(sql, "or")
 			}
 		}
 
@@ -89,9 +92,14 @@ func (where Where) MergeClause(clause *Clause) {
 func And(exprs ...Expression) Expression {
 	if len(exprs) == 0 {
 		return nil
-	} else if len(exprs) == 1 {
-		return exprs[0]
 	}
+
+	if len(exprs) == 1 {
+		if _, ok := exprs[0].(OrConditions); !ok {
+			return exprs[0]
+		}
+	}
+
 	return AndConditions{Exprs: exprs}
 }
 

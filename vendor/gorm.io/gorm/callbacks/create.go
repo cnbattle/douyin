@@ -57,7 +57,7 @@ func Create(config *Config) func(db *gorm.DB) {
 			}
 		}
 
-		if db.Statement.SQL.String() == "" {
+		if db.Statement.SQL.Len() == 0 {
 			db.Statement.SQL.Grow(180)
 			db.Statement.AddClauseIfNotExists(clause.Insert{})
 			db.Statement.AddClause(ConvertToCreateValues(db.Statement))
@@ -83,7 +83,7 @@ func Create(config *Config) func(db *gorm.DB) {
 			)
 			if db.AddError(err) == nil {
 				gorm.Scan(rows, db, mode)
-				rows.Close()
+				db.AddError(rows.Close())
 			}
 
 			return
