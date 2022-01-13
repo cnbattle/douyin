@@ -232,6 +232,9 @@ func (stmt *Statement) AddVar(writer clause.Writer, vars ...interface{}) {
 			case reflect.Slice, reflect.Array:
 				if rv.Len() == 0 {
 					writer.WriteString("(NULL)")
+				} else if rv.Type().Elem() == reflect.TypeOf(uint8(0)) {
+					stmt.Vars = append(stmt.Vars, v)
+					stmt.DB.Dialector.BindVarTo(writer, stmt, v)
 				} else {
 					writer.WriteByte('(')
 					for i := 0; i < rv.Len(); i++ {
@@ -328,7 +331,7 @@ func (stmt *Statement) BuildCondition(query interface{}, args ...interface{}) []
 				conds = append(conds, clause.Eq{Column: i, Value: j})
 			}
 		case map[string]string:
-			var keys = make([]string, 0, len(v))
+			keys := make([]string, 0, len(v))
 			for i := range v {
 				keys = append(keys, i)
 			}
@@ -338,7 +341,7 @@ func (stmt *Statement) BuildCondition(query interface{}, args ...interface{}) []
 				conds = append(conds, clause.Eq{Column: key, Value: v[key]})
 			}
 		case map[string]interface{}:
-			var keys = make([]string, 0, len(v))
+			keys := make([]string, 0, len(v))
 			for i := range v {
 				keys = append(keys, i)
 			}

@@ -20,21 +20,20 @@ func Query(db *gorm.DB) {
 				db.AddError(err)
 				return
 			}
-			defer rows.Close()
-
 			gorm.Scan(rows, db, 0)
+			db.AddError(rows.Close())
 		}
 	}
 }
 
 func BuildQuerySQL(db *gorm.DB) {
-	if db.Statement.Schema != nil && !db.Statement.Unscoped {
+	if db.Statement.Schema != nil {
 		for _, c := range db.Statement.Schema.QueryClauses {
 			db.Statement.AddClause(c)
 		}
 	}
 
-	if db.Statement.SQL.String() == "" {
+	if db.Statement.SQL.Len() == 0 {
 		db.Statement.SQL.Grow(100)
 		clauseSelect := clause.Select{Distinct: db.Statement.Distinct}
 
