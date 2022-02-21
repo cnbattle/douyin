@@ -179,9 +179,7 @@ func (stmt *Statement) AddVar(writer clause.Writer, vars ...interface{}) {
 			} else {
 				stmt.AddVar(writer, v.GormValue(stmt.Context, stmt.DB))
 			}
-		case clause.Expr:
-			v.Build(stmt)
-		case *clause.Expr:
+		case clause.Expression:
 			v.Build(stmt)
 		case driver.Valuer:
 			stmt.Vars = append(stmt.Vars, v)
@@ -391,7 +389,7 @@ func (stmt *Statement) BuildCondition(query interface{}, args ...interface{}) []
 					for _, field := range s.Fields {
 						selected := selectedColumns[field.DBName] || selectedColumns[field.Name]
 						if selected || (!restricted && field.Readable) {
-							if v, isZero := field.ValueOf(reflectValue); !isZero || selected {
+							if v, isZero := field.ValueOf(stmt.Context, reflectValue); !isZero || selected {
 								if field.DBName != "" {
 									conds = append(conds, clause.Eq{Column: clause.Column{Table: clause.CurrentTable, Name: field.DBName}, Value: v})
 								} else if field.DataType != "" {
@@ -405,7 +403,7 @@ func (stmt *Statement) BuildCondition(query interface{}, args ...interface{}) []
 						for _, field := range s.Fields {
 							selected := selectedColumns[field.DBName] || selectedColumns[field.Name]
 							if selected || (!restricted && field.Readable) {
-								if v, isZero := field.ValueOf(reflectValue.Index(i)); !isZero || selected {
+								if v, isZero := field.ValueOf(stmt.Context, reflectValue.Index(i)); !isZero || selected {
 									if field.DBName != "" {
 										conds = append(conds, clause.Eq{Column: clause.Column{Table: clause.CurrentTable, Name: field.DBName}, Value: v})
 									} else if field.DataType != "" {
@@ -564,7 +562,7 @@ func (stmt *Statement) SetColumn(name string, value interface{}, fromCallbacks .
 
 				switch destValue.Kind() {
 				case reflect.Struct:
-					field.Set(destValue, value)
+					field.Set(stmt.Context, destValue, value)
 				default:
 					stmt.AddError(ErrInvalidData)
 				}
@@ -574,10 +572,10 @@ func (stmt *Statement) SetColumn(name string, value interface{}, fromCallbacks .
 			case reflect.Slice, reflect.Array:
 				if len(fromCallbacks) > 0 {
 					for i := 0; i < stmt.ReflectValue.Len(); i++ {
-						field.Set(stmt.ReflectValue.Index(i), value)
+						field.Set(stmt.Context, stmt.ReflectValue.Index(i), value)
 					}
 				} else {
-					field.Set(stmt.ReflectValue.Index(stmt.CurDestIndex), value)
+					field.Set(stmt.Context, stmt.ReflectValue.Index(stmt.CurDestIndex), value)
 				}
 			case reflect.Struct:
 				if !stmt.ReflectValue.CanAddr() {
@@ -585,7 +583,7 @@ func (stmt *Statement) SetColumn(name string, value interface{}, fromCallbacks .
 					return
 				}
 
-				field.Set(stmt.ReflectValue, value)
+				field.Set(stmt.Context, stmt.ReflectValue, value)
 			}
 		} else {
 			stmt.AddError(ErrInvalidField)
@@ -605,7 +603,7 @@ func (stmt *Statement) Changed(fields ...string) bool {
 
 	selectColumns, restricted := stmt.SelectAndOmitColumns(false, true)
 	changed := func(field *schema.Field) bool {
-		fieldValue, _ := field.ValueOf(modelValue)
+		fieldValue, _ := field.ValueOf(stmt.Context, modelValue)
 		if v, ok := selectColumns[field.DBName]; (ok && v) || (!ok && !restricted) {
 			if v, ok := stmt.Dest.(map[string]interface{}); ok {
 				if fv, ok := v[field.Name]; ok {
@@ -619,7 +617,7 @@ func (stmt *Statement) Changed(fields ...string) bool {
 					destValue = destValue.Elem()
 				}
 
-				changedValue, zero := field.ValueOf(destValue)
+				changedValue, zero := field.ValueOf(stmt.Context, destValue)
 				return !zero && !utils.AssertEqual(changedValue, fieldValue)
 			}
 		}

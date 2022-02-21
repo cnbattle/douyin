@@ -40,7 +40,7 @@ func BuildQuerySQL(db *gorm.DB) {
 		if db.Statement.ReflectValue.Kind() == reflect.Struct && db.Statement.ReflectValue.Type() == db.Statement.Schema.ModelType {
 			var conds []clause.Expression
 			for _, primaryField := range db.Statement.Schema.PrimaryFields {
-				if v, isZero := primaryField.ValueOf(db.Statement.ReflectValue); !isZero {
+				if v, isZero := primaryField.ValueOf(db.Statement.Context, db.Statement.ReflectValue); !isZero {
 					conds = append(conds, clause.Eq{Column: clause.Column{Table: db.Statement.Table, Name: primaryField.DBName}, Value: v})
 				}
 			}
@@ -100,7 +100,7 @@ func BuildQuerySQL(db *gorm.DB) {
 		}
 
 		if len(db.Statement.Joins) != 0 || len(joins) != 0 {
-			if len(db.Statement.Selects) == 0 && db.Statement.Schema != nil {
+			if len(db.Statement.Selects) == 0 && len(db.Statement.Omits) == 0 && db.Statement.Schema != nil {
 				clauseSelect.Columns = make([]clause.Column, len(db.Statement.Schema.DBNames))
 				for idx, dbName := range db.Statement.Schema.DBNames {
 					clauseSelect.Columns[idx] = clause.Column{Table: db.Statement.Table, Name: dbName}

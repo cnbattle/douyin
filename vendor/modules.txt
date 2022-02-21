@@ -80,7 +80,7 @@ gopkg.in/yaml.v2
 # gorm.io/driver/sqlite v1.2.6
 ## explicit; go 1.14
 gorm.io/driver/sqlite
-# gorm.io/gorm v1.22.5
+# gorm.io/gorm v1.23.1
 ## explicit; go 1.14
 gorm.io/gorm
 gorm.io/gorm/callbacks
