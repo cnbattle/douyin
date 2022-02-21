@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"database/sql"
 	"fmt"
 	"regexp"
 	"strings"
@@ -66,8 +67,8 @@ func (m Migrator) HasColumn(value interface{}, name string) bool {
 
 		if name != "" {
 			m.DB.Raw(
-				"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
-				"table", stmt.Table, `%"`+name+`" %`, `%`+name+` %`, "%`"+name+"`%",
+				"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
+				"table", stmt.Table, `%"`+name+`" %`, `%`+name+` %`, "%`"+name+"`%", "%["+name+"]%", "%\t"+name+"\t%",
 			).Row().Scan(&count)
 		}
 		return nil
@@ -87,12 +88,59 @@ func (m Migrator) AlterColumn(value interface{}, name string) error {
 				createSQL := reg.ReplaceAllString(rawDDL, fmt.Sprintf("`%v` ?,", field.DBName))
 
 				return createSQL, []interface{}{m.FullDataTypeOf(field)}, nil
-
-			} else {
-				return "", nil, fmt.Errorf("failed to alter field with name %v", name)
 			}
+			return "", nil, fmt.Errorf("failed to alter field with name %v", name)
 		})
 	})
+}
+
+// ColumnTypes return columnTypes []gorm.ColumnType and execErr error
+func (m Migrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
+	columnTypes := make([]gorm.ColumnType, 0)
+	execErr := m.RunWithValue(value, func(stmt *gorm.Statement) (err error) {
+		var (
+			sqls   []string
+			sqlDDL *ddl
+		)
+
+		if err := m.DB.Raw("SELECT sql FROM sqlite_master WHERE type IN ? AND tbl_name = ? AND sql IS NOT NULL order by type = ? desc", []string{"table", "index"}, stmt.Table, "table").Scan(&sqls).Error; err != nil {
+			return err
+		}
+
+		if sqlDDL, err = parseDDL(sqls...); err != nil {
+			return err
+		}
+
+		rows, err := m.DB.Session(&gorm.Session{}).Table(stmt.Table).Limit(1).Rows()
+		if err != nil {
+			return err
+		}
+		defer func() {
+			err = rows.Close()
+		}()
+
+		var rawColumnTypes []*sql.ColumnType
+		rawColumnTypes, err = rows.ColumnTypes()
+		if err != nil {
+			return err
+		}
+
+		for _, c := range rawColumnTypes {
+			columnType := migrator.ColumnType{SQLColumnType: c}
+			for _, column := range sqlDDL.columns {
+				if column.NameValue.String == c.Name() {
+					column.SQLColumnType = c
+					columnType = column
+					break
+				}
+			}
+			columnTypes = append(columnTypes, columnType)
+		}
+
+		return err
+	})
+
+	return columnTypes, execErr
 }
 
 func (m Migrator) DropColumn(value interface{}, name string) error {
@@ -101,7 +149,7 @@ func (m Migrator) DropColumn(value interface{}, name string) error {
 			name = field.DBName
 		}
 
-		reg, err := regexp.Compile("(`|'|\"| )" + name + "(`|'|\"| ) .*?,")
+		reg, err := regexp.Compile("(`|'|\"| |\\[)" + name + "(`|'|\"| |\\]) .*?,")
 		if err != nil {
 			return "", nil, err
 		}
@@ -181,8 +229,8 @@ func (m Migrator) HasConstraint(value interface{}, name string) bool {
 		}
 
 		m.DB.Raw(
-			"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
-			"table", table, `%CONSTRAINT "`+name+`" %`, `%CONSTRAINT `+name+` %`, "%CONSTRAINT `"+name+"`%",
+			"SELECT count(*) FROM sqlite_master WHERE type = ? AND tbl_name = ? AND (sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ? OR sql LIKE ?)",
+			"table", table, `%CONSTRAINT "`+name+`" %`, `%CONSTRAINT `+name+` %`, "%CONSTRAINT `"+name+"`%", "%CONSTRAINT ["+name+"]%", "%CONSTRAINT \t"+name+"\t%",
 		).Row().Scan(&count)
 
 		return nil
