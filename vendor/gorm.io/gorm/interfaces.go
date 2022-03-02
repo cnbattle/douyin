@@ -50,10 +50,17 @@ type ConnPoolBeginner interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (ConnPool, error)
 }
 
-// TxCommitter tx commiter
+// TxCommitter tx committer
 type TxCommitter interface {
 	Commit() error
 	Rollback() error
+}
+
+// Tx sql.Tx interface
+type Tx interface {
+	ConnPool
+	TxCommitter
+	StmtContext(ctx context.Context, stmt *sql.Stmt) *sql.Stmt
 }
 
 // Valuer gorm valuer interface
