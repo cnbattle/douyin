@@ -18,6 +18,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Context 代理上下文
@@ -25,6 +26,38 @@ type Context struct {
 	Req   *http.Request
 	Data  map[interface{}]interface{}
 	abort bool
+}
+
+func (c *Context) IsHTTPS() bool {
+	return c.Req.URL.Scheme == "https"
+}
+
+var defaultPorts = map[string]string{
+	"https": "443",
+	"http":  "80",
+	"":      "80",
+}
+
+func (c *Context) WebsocketUrl() *url.URL {
+	u := new(url.URL)
+	*u = *c.Req.URL
+	if c.IsHTTPS() {
+		u.Scheme = "wss"
+	} else {
+		u.Scheme = "ws"
+	}
+
+	return u
+}
+
+func (c *Context) Addr() string {
+	addr := c.Req.Host
+
+	if !strings.Contains(c.Req.URL.Host, ":") {
+		addr += ":" + defaultPorts[c.Req.URL.Scheme]
+	}
+
+	return addr
 }
 
 // Abort 中断执行
@@ -37,6 +70,13 @@ func (c *Context) IsAborted() bool {
 	return c.abort
 }
 
+// Reset 重置
+func (c *Context) Reset(req *http.Request) {
+	c.Req = req
+	c.Data = make(map[interface{}]interface{})
+	c.abort = false
+}
+
 type Delegate interface {
 	// Connect 收到客户端连接
 	Connect(ctx *Context, rw http.ResponseWriter)
@@ -46,6 +86,10 @@ type Delegate interface {
 	BeforeRequest(ctx *Context)
 	// BeforeResponse 响应发送到客户端前, 修改Header、Body、Status Code
 	BeforeResponse(ctx *Context, resp *http.Response, err error)
+	// WebSocketSendMessage websocket发送消息
+	WebSocketSendMessage(ctx *Context, messageType *int, p *[]byte)
+	// WebSockerReceiveMessage websocket接收 消息
+	WebSocketReceiveMessage(ctx *Context, messageType *int, p *[]byte)
 	// ParentProxy 上级代理
 	ParentProxy(*http.Request) (*url.URL, error)
 	// Finish 本次请求结束
@@ -72,6 +116,12 @@ func (h *DefaultDelegate) BeforeResponse(ctx *Context, resp *http.Response, err 
 func (h *DefaultDelegate) ParentProxy(req *http.Request) (*url.URL, error) {
 	return http.ProxyFromEnvironment(req)
 }
+
+// WebSocketSendMessage websocket发送消息
+func (h *DefaultDelegate) WebSocketSendMessage(ctx *Context, messageType *int, payload *[]byte) {}
+
+// WebSockerReceiveMessage websocket接收 消息
+func (h *DefaultDelegate) WebSocketReceiveMessage(ctx *Context, messageType *int, payload *[]byte) {}
 
 func (h *DefaultDelegate) Finish(ctx *Context) {}
 

@@ -279,7 +279,7 @@ func (c *Certificate) GenerateCA() (*Pair, error) {
 
 func (c *Certificate) template(host string, expireYears int) *x509.Certificate {
 	cert := &x509.Certificate{
-		SerialNumber: big.NewInt(1),
+		SerialNumber: big.NewInt(rand.Int63()),
 		Subject: pkix.Name{
 			CommonName: host,
 		},
