@@ -23,9 +23,10 @@ import (
 
 // Context 代理上下文
 type Context struct {
-	Req   *http.Request
-	Data  map[interface{}]interface{}
-	abort bool
+	Req         *http.Request
+	Data        map[interface{}]interface{}
+	TunnelProxy bool
+	abort       bool
 }
 
 func (c *Context) IsHTTPS() bool {
@@ -75,6 +76,7 @@ func (c *Context) Reset(req *http.Request) {
 	c.Req = req
 	c.Data = make(map[interface{}]interface{})
 	c.abort = false
+	c.TunnelProxy = false
 }
 
 type Delegate interface {
