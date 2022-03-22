@@ -3,7 +3,7 @@ module github.com/cnbattle/douyin
 go 1.17
 
 require (
-	github.com/ouqiang/goproxy v1.1.6
+	github.com/ouqiang/goproxy v1.1.8
 	github.com/spf13/viper v1.10.1
 	gorm.io/driver/sqlite v1.3.1
 	gorm.io/gorm v1.23.3
