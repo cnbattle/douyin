@@ -271,6 +271,8 @@ func (p *Proxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	switch {
 	case ctx.Req.Method == http.MethodConnect:
 		p.tunnelProxy(ctx, rw)
+	case websocket.IsWebSocketUpgrade(ctx.Req):
+		p.tunnelProxy(ctx, rw)
 	default:
 		p.httpProxy(ctx, rw)
 	}
@@ -397,6 +399,11 @@ func (p *Proxy) tunnelProxy(ctx *Context, rw http.ResponseWriter) {
 		_ = clientConn.Close()
 	}()
 
+	if websocket.IsWebSocketUpgrade(ctx.Req) {
+		p.websocketProxy(ctx, clientConn)
+		return
+	}
+
 	parentProxyURL, err := p.delegate.ParentProxy(ctx.Req)
 	if err != nil {
 		p.delegate.ErrorLog(fmt.Errorf("%s - 解析代理地址错误: %s", ctx.Req.URL.Host, err))
@@ -453,25 +460,14 @@ func (p *Proxy) tunnelProxy(ctx *Context, rw http.ResponseWriter) {
 	if p.decryptHTTPS {
 		p.httpsProxy(ctx, clientConn)
 	} else {
+		p.tunnelConnected(ctx)
 		p.transfer(clientConn, targetConn)
 	}
 }
 
 // WebSocket代理
 func (p *Proxy) websocketProxy(ctx *Context, srcConn *ConnBuffer) {
-	{
-		p.delegate.BeforeRequest(ctx)
-		resp := &http.Response{
-			Status:     "200 OK",
-			StatusCode: http.StatusOK,
-			Proto:      "1.1",
-			ProtoMajor: 1,
-			ProtoMinor: 1,
-			Header:     http.Header{},
-			Body:       http.NoBody,
-		}
-		p.delegate.BeforeResponse(ctx, resp, nil)
-	}
+	p.tunnelConnected(ctx)
 
 	if !p.websocketIntercept {
 		remoteAddr := ctx.Addr()
@@ -602,6 +598,21 @@ func (p *Proxy) transfer(src net.Conn, dst net.Conn) {
 	bufPool.Put(buf)
 	_ = dst.Close()
 	_ = src.Close()
+}
+
+func (p *Proxy) tunnelConnected(ctx *Context) {
+	ctx.TunnelProxy = true
+	p.delegate.BeforeRequest(ctx)
+	resp := &http.Response{
+		Status:     "200 OK",
+		StatusCode: http.StatusOK,
+		Proto:      "1.1",
+		ProtoMajor: 1,
+		ProtoMinor: 1,
+		Header:     http.Header{},
+		Body:       http.NoBody,
+	}
+	p.delegate.BeforeResponse(ctx, resp, nil)
 }
 
 // 获取底层连接
