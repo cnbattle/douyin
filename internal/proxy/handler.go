@@ -18,10 +18,13 @@ import (
 
 type EventHandler struct{}
 
+func (e *EventHandler) WebSocketSendMessage(*goproxy.Context, *int, *[]byte) {}
+
+func (e *EventHandler) WebSocketReceiveMessage(*goproxy.Context, *int, *[]byte) {}
+
 func (e *EventHandler) Connect(ctx *goproxy.Context, rw http.ResponseWriter) {
 	// 保存的数据可以在后面的回调方法中获取
 	ctx.Data["req_id"] = "uuid"
-
 	// 禁止访问某个域名
 	if strings.Contains(ctx.Req.URL.Host, "example.com") {
 		rw.WriteHeader(http.StatusForbidden)
@@ -30,9 +33,7 @@ func (e *EventHandler) Connect(ctx *goproxy.Context, rw http.ResponseWriter) {
 	}
 }
 
-func (e *EventHandler) Auth(ctx *goproxy.Context, rw http.ResponseWriter) {
-	// 身份验证
-}
+func (e *EventHandler) Auth(*goproxy.Context, http.ResponseWriter) {}
 
 func (e *EventHandler) BeforeRequest(ctx *goproxy.Context) {
 	// 修改header
@@ -53,7 +54,6 @@ func (e *EventHandler) BeforeRequest(ctx *goproxy.Context) {
 	// Request.Body只能读取一次, 读取后必须再放回去
 	// Response.Body同理
 	ctx.Req.Body = ioutil.NopCloser(bytes.NewReader(body))
-
 }
 
 func (e *EventHandler) BeforeResponse(ctx *goproxy.Context, resp *http.Response, err error) {
@@ -121,17 +121,13 @@ func (e *EventHandler) BeforeResponse(ctx *goproxy.Context, resp *http.Response,
 	}
 }
 
-// 设置上级代理
-func (e *EventHandler) ParentProxy(req *http.Request) (*url.URL, error) {
+// ParentProxy 设置上级代理
+func (e *EventHandler) ParentProxy(*http.Request) (*url.URL, error) {
 	return nil, nil
 }
 
 // Finish 请求结束
-func (e *EventHandler) Finish(ctx *goproxy.Context) {
-
-}
+func (e *EventHandler) Finish(*goproxy.Context) {}
 
 // ErrorLog 记录错误日志
-func (e *EventHandler) ErrorLog(err error) {
-
-}
+func (e *EventHandler) ErrorLog(error) {}
