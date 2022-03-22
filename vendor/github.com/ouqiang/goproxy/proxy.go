@@ -350,6 +350,7 @@ func (p *Proxy) httpsProxy(ctx *Context, clientConn net.Conn) {
 		_ = tlsClientConn.Close()
 	}()
 	if err := tlsClientConn.Handshake(); err != nil {
+		p.tunnelConnected(ctx, err)
 		p.delegate.ErrorLog(fmt.Errorf("%s - HTTPS解密, 握手失败: %s", ctx.Req.URL.Host, err))
 		return
 	}
@@ -359,6 +360,7 @@ func (p *Proxy) httpsProxy(ctx *Context, clientConn net.Conn) {
 	tlsReq, err := http.ReadRequest(buf)
 	if err != nil {
 		if err != io.EOF {
+			p.tunnelConnected(ctx, err)
 			p.delegate.ErrorLog(fmt.Errorf("%s - HTTPS解密, 读取客户端请求失败: %s", ctx.Req.URL.Host, err))
 		}
 		return
@@ -443,8 +445,8 @@ func (p *Proxy) tunnelProxy(ctx *Context, rw http.ResponseWriter) {
 
 	targetConn, err := net.DialTimeout("tcp", targetAddr, defaultTargetConnectTimeout)
 	if err != nil {
+		p.tunnelConnected(ctx, err)
 		p.delegate.ErrorLog(fmt.Errorf("%s - 隧道转发连接目标服务器失败: %s", ctx.Req.URL.Host, err))
-		rw.WriteHeader(http.StatusBadGateway)
 		return
 	}
 	defer func() {
@@ -460,15 +462,13 @@ func (p *Proxy) tunnelProxy(ctx *Context, rw http.ResponseWriter) {
 	if p.decryptHTTPS {
 		p.httpsProxy(ctx, clientConn)
 	} else {
-		p.tunnelConnected(ctx)
+		p.tunnelConnected(ctx, nil)
 		p.transfer(clientConn, targetConn)
 	}
 }
 
 // WebSocket代理
 func (p *Proxy) websocketProxy(ctx *Context, srcConn *ConnBuffer) {
-	p.tunnelConnected(ctx)
-
 	if !p.websocketIntercept {
 		remoteAddr := ctx.Addr()
 		var err error
@@ -479,14 +479,17 @@ func (p *Proxy) websocketProxy(ctx *Context, srcConn *ConnBuffer) {
 			targetConn, err = net.Dial("tcp", remoteAddr)
 		}
 		if err != nil {
+			p.tunnelConnected(ctx, err)
 			p.delegate.ErrorLog(fmt.Errorf("%s - websocket连接目标服务器错误: %s", ctx.Req.URL.Host, err))
 			return
 		}
 		err = ctx.Req.Write(targetConn)
 		if err != nil {
+			p.tunnelConnected(ctx, err)
 			p.delegate.ErrorLog(fmt.Errorf("%s - websocket协议转换请求写入目标服务器错误: %s", ctx.Req.URL.Host, err))
 			return
 		}
+		p.tunnelConnected(ctx, nil)
 		p.transfer(srcConn, targetConn)
 		return
 	}
@@ -501,6 +504,7 @@ func (p *Proxy) websocketProxy(ctx *Context, srcConn *ConnBuffer) {
 	}
 	srcWSConn, err := up.Upgrade(srcConn, ctx.Req, http.Header{})
 	if err != nil {
+		p.tunnelConnected(ctx, err)
 		p.delegate.ErrorLog(fmt.Errorf("%s - 源连接升级到websocket协议错误: %s", ctx.Req.URL.Host, err))
 		return
 	}
@@ -513,9 +517,11 @@ func (p *Proxy) websocketProxy(ctx *Context, srcConn *ConnBuffer) {
 
 	targetWSConn, _, err := d.Dial(u.String(), ctx.Req.Header)
 	if err != nil {
+		p.tunnelConnected(ctx, err)
 		p.delegate.ErrorLog(fmt.Errorf("%s - 目标连接升级到websocket协议错误: %s", ctx.Req.URL.Host, err))
 		return
 	}
+	p.tunnelConnected(ctx, nil)
 	p.transferWebsocket(ctx, srcWSConn, targetWSConn)
 }
 
@@ -600,9 +606,13 @@ func (p *Proxy) transfer(src net.Conn, dst net.Conn) {
 	_ = src.Close()
 }
 
-func (p *Proxy) tunnelConnected(ctx *Context) {
+func (p *Proxy) tunnelConnected(ctx *Context, err error) {
 	ctx.TunnelProxy = true
 	p.delegate.BeforeRequest(ctx)
+	if err != nil {
+		p.delegate.BeforeResponse(ctx, nil, err)
+		return
+	}
 	resp := &http.Response{
 		Status:     "200 OK",
 		StatusCode: http.StatusOK,
