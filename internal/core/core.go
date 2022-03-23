@@ -100,6 +100,7 @@ func download(url, saveFile string) error {
 	}
 	defer res.Body.Close()
 	f, err := os.Create(saveFile)
+	defer f.Close()
 	if err != nil {
 		_ = os.Remove(saveFile)
 		return err
