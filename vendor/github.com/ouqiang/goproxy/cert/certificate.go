@@ -142,7 +142,8 @@ func init() {
 
 // Certificate 证书管理
 type Certificate struct {
-	cache Cache
+	cache             Cache
+	defaultPrivateKey *rsa.PrivateKey
 }
 
 type Pair struct {
@@ -152,10 +153,19 @@ type Pair struct {
 	PrivateKeyBytes []byte
 }
 
-func NewCertificate(cache Cache) *Certificate {
-	return &Certificate{
+func NewCertificate(cache Cache, useDefaultPrivateKey ...bool) *Certificate {
+	c := &Certificate{
 		cache: cache,
 	}
+	if len(useDefaultPrivateKey) > 0 && useDefaultPrivateKey[0] {
+		priv, err := rsa.GenerateKey(crand.Reader, 2048)
+		if err != nil {
+			panic(err)
+		}
+		c.defaultPrivateKey = priv
+	}
+
+	return c
 }
 
 // GenerateTlsConfig 生成TLS配置
@@ -195,7 +205,14 @@ func (c *Certificate) GenerateTlsConfig(host string) (*tls.Config, error) {
 
 // Generate 生成证书
 func (c *Certificate) GeneratePem(host string, expireDays int, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) (*Pair, error) {
-	priv, err := rsa.GenerateKey(crand.Reader, 2048)
+	var priv *rsa.PrivateKey
+	var err error
+
+	if c.defaultPrivateKey != nil {
+		priv = c.defaultPrivateKey
+	} else {
+		priv, err = rsa.GenerateKey(crand.Reader, 2048)
+	}
 	if err != nil {
 		return nil, err
 	}

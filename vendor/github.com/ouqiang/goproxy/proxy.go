@@ -224,7 +224,7 @@ func New(opt ...Option) *Proxy {
 	p.websocketIntercept = opts.websocketIntercept
 	p.decryptHTTPS = opts.decryptHTTPS
 	if p.decryptHTTPS {
-		p.cert = cert.NewCertificate(opts.certCache)
+		p.cert = cert.NewCertificate(opts.certCache, true)
 	}
 	p.transport = opts.transport
 	p.transport.DisableKeepAlives = opts.disableKeepAlive
