@@ -32,8 +32,7 @@ import (
 )
 
 var (
-	defaultRootCAPem = []byte(`
------BEGIN CERTIFICATE-----
+	defaultRootCAPem = []byte(`-----BEGIN CERTIFICATE-----
 MIIFdDCCA1ygAwIBAgIBATANBgkqhkiG9w0BAQsFADBZMQ4wDAYDVQQGEwVDaGlu
 YTEPMA0GA1UECBMGRnVKaWFuMQ8wDQYDVQQHEwZYaWFtZW4xDTALBgNVBAoTBE1h
 cnMxFjAUBgNVBAMTDWdvLW1pdG0tcHJveHkwIBcNMTgwMzE4MDkwMDQ0WhgPMjA2
@@ -66,8 +65,7 @@ irCRNyFcDrKoyILOOUiPxoEcclrwUBTB78JxVA8xKTbAh0aZQRZOZOz49qF4gA1d
 CDPlL4gNB6s=
 -----END CERTIFICATE-----
 `)
-	defaultRootKeyPem = []byte(`
------BEGIN RSA PRIVATE KEY-----
+	defaultRootKeyPem = []byte(`-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEA2K6mkRtqdO+IKzjsAUgDL4BVcOFoidqXh8aY36QbW3E7hg/K
 Aoat2OiQJm2QvpkrrWLMWDoEtf6nrmPzCcA9k9mvdm7m+VwMztto7113G2deb98A
 I8S4wi+CYbvPET0J5fctju2yrXSGDy4oydgZPLkJ7SGS5ifw53TIex4YVYKZoIAc
@@ -298,13 +296,17 @@ func (c *Certificate) template(host string, expireYears int) *x509.Certificate {
 	cert := &x509.Certificate{
 		SerialNumber: big.NewInt(rand.Int63()),
 		Subject: pkix.Name{
-			CommonName: host,
+			CommonName:   host,
+			Country:      []string{"China"},
+			Organization: []string{"goproxy"},
+			Province:     []string{"FuJian"},
+			Locality:     []string{"Xiamen"},
 		},
 		NotBefore:             time.Now().AddDate(-1, 0, 0),
 		NotAfter:              time.Now().AddDate(expireYears, 0, 0),
 		BasicConstraintsValid: true,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment,
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageDataEncipherment | x509.KeyUsageKeyEncipherment,
 		EmailAddresses:        []string{"qingqianludao@gmail.com"},
 	}
 	hosts := strings.Split(host, ",")
