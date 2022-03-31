@@ -658,11 +658,15 @@ func CloneHeader(h http.Header, h2 http.Header) {
 }
 
 // CloneBody 拷贝Body
-func CloneBody(b io.ReadCloser) (r io.ReadCloser, body []byte, err error) {
+func CloneBody(b io.ReadCloser, limit int64) (r io.ReadCloser, body []byte, err error) {
 	if b == nil {
 		return http.NoBody, nil, nil
 	}
-	body, err = ioutil.ReadAll(b)
+	var rl io.Reader = b
+	if limit > 0 {
+		rl = io.LimitReader(b, limit)
+	}
+	body, err = ioutil.ReadAll(rl)
 	if err != nil {
 		return http.NoBody, nil, err
 	}
