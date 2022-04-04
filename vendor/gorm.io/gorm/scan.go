@@ -50,7 +50,7 @@ func scanIntoMap(mapValue map[string]interface{}, values []interface{}, columns 
 	}
 }
 
-func (db *DB) scanIntoStruct(rows *sql.Rows, reflectValue reflect.Value, values []interface{}, fields []*schema.Field, joinFields [][2]*schema.Field) {
+func (db *DB) scanIntoStruct(rows Rows, reflectValue reflect.Value, values []interface{}, fields []*schema.Field, joinFields [][2]*schema.Field) {
 	for idx, field := range fields {
 		if field != nil {
 			values[idx] = field.NewValuePool.Get()
@@ -69,7 +69,7 @@ func (db *DB) scanIntoStruct(rows *sql.Rows, reflectValue reflect.Value, values 
 	for idx, field := range fields {
 		if field != nil {
 			if len(joinFields) == 0 || joinFields[idx][0] == nil {
-				field.Set(db.Statement.Context, reflectValue, values[idx])
+				db.AddError(field.Set(db.Statement.Context, reflectValue, values[idx]))
 			} else {
 				relValue := joinFields[idx][0].ReflectValueOf(db.Statement.Context, reflectValue)
 				if relValue.Kind() == reflect.Ptr && relValue.IsNil() {
@@ -79,7 +79,7 @@ func (db *DB) scanIntoStruct(rows *sql.Rows, reflectValue reflect.Value, values 
 
 					relValue.Set(reflect.New(relValue.Type().Elem()))
 				}
-				joinFields[idx][1].Set(db.Statement.Context, relValue, values[idx])
+				db.AddError(joinFields[idx][1].Set(db.Statement.Context, relValue, values[idx]))
 			}
 
 			// release data to pool
@@ -99,7 +99,7 @@ const (
 )
 
 // Scan scan rows into db statement
-func Scan(rows *sql.Rows, db *DB, mode ScanMode) {
+func Scan(rows Rows, db *DB, mode ScanMode) {
 	var (
 		columns, _          = rows.Columns()
 		values              = make([]interface{}, len(columns))
