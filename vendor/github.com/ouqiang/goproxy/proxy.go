@@ -25,13 +25,13 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/http/httptrace"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/ouqiang/websocket"
-
 	"github.com/ouqiang/goproxy/cert"
+	"github.com/ouqiang/websocket"
 )
 
 const (
@@ -154,6 +154,7 @@ type options struct {
 	websocketIntercept bool
 	certCache          cert.Cache
 	transport          *http.Transport
+	clientTrace        *httptrace.ClientTrace
 }
 
 type Option func(*options)
@@ -162,6 +163,12 @@ type Option func(*options)
 func WithDisableKeepAlive(disableKeepAlive bool) Option {
 	return func(opt *options) {
 		opt.disableKeepAlive = disableKeepAlive
+	}
+}
+
+func WithClientTrace(t *httptrace.ClientTrace) Option {
+	return func(opt *options) {
+		opt.clientTrace = t
 	}
 }
 
@@ -229,6 +236,7 @@ func New(opt ...Option) *Proxy {
 	p.transport = opts.transport
 	p.transport.DisableKeepAlives = opts.disableKeepAlive
 	p.transport.Proxy = p.delegate.ParentProxy
+	p.clientTrace = opts.clientTrace
 
 	return p
 }
@@ -241,6 +249,7 @@ type Proxy struct {
 	websocketIntercept bool
 	cert               *cert.Certificate
 	transport          *http.Transport
+	clientTrace        *httptrace.ClientTrace
 }
 
 var _ http.Handler = &Proxy{}
@@ -302,6 +311,10 @@ func (p *Proxy) DoRequest(ctx *Context, responseFunc func(*http.Response, error)
 			newReq.Header.Del(item)
 		}
 	}
+	if p.clientTrace != nil {
+		newReq = newReq.WithContext(httptrace.WithClientTrace(newReq.Context(), p.clientTrace))
+	}
+
 	resp, err := p.transport.RoundTrip(newReq)
 	p.delegate.BeforeResponse(ctx, resp, err)
 	if ctx.abort {

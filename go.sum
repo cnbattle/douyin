@@ -290,8 +290,8 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/modern-go/reflect2 v1.0.2/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
-github.com/ouqiang/goproxy v1.2.2 h1:lbp3NrdFaLR3jKNpTLeFo9RWRtcRJkMhm0dksl4rYSI=
-github.com/ouqiang/goproxy v1.2.2/go.mod h1:1AARqP8BN2kknyWEd95vpxLZhcy8888k2frVp+LUXV0=
+github.com/ouqiang/goproxy v1.2.3 h1:AOrME+pDQ6IJgSNFR1gMNqPklMyAyPkzIp8y3sbTBH0=
+github.com/ouqiang/goproxy v1.2.3/go.mod h1:1AARqP8BN2kknyWEd95vpxLZhcy8888k2frVp+LUXV0=
 github.com/ouqiang/goutil v1.4.0/go.mod h1:9ItNsmCWmTrf8wa8/hUMxqNoQiQJMI69neu9yUdMqSo=
 github.com/ouqiang/websocket v1.6.2 h1:LGQIySbQO3ahZCl34v9xBVb0yncDk8yIcuEIbWBab/U=
 github.com/ouqiang/websocket v1.6.2/go.mod h1:fIROJIHRlQwgCyUFTMzaaIcs4HIwUj2xlOW43u9Sf+M=
