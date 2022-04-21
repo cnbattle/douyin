@@ -3,7 +3,7 @@ module github.com/cnbattle/douyin
 go 1.18
 
 require (
-	github.com/ouqiang/goproxy v1.2.6
+	github.com/ouqiang/goproxy v1.2.9
 	github.com/spf13/viper v1.11.0
 	gorm.io/driver/sqlite v1.3.1
 	gorm.io/gorm v1.23.4
@@ -26,6 +26,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/viki-org/dnscache v0.0.0-20130720023526-c70c1f23c5d8 // indirect
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
