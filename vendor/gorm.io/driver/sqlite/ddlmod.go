@@ -12,7 +12,7 @@ import (
 
 var (
 	sqliteSeparator    = "`|\"|'|\t"
-	indexRegexp        = regexp.MustCompile(fmt.Sprintf("CREATE(?: UNIQUE)? INDEX [%v][\\w\\d]+[%v] ON (.*)$", sqliteSeparator, sqliteSeparator))
+	indexRegexp        = regexp.MustCompile(fmt.Sprintf("CREATE(?: UNIQUE)? INDEX [%v]?[\\w\\d]+[%v]? ON (.*)$", sqliteSeparator, sqliteSeparator))
 	tableRegexp        = regexp.MustCompile(fmt.Sprintf("(?i)(CREATE TABLE [%v]?[\\w\\d]+[%v]?)(?: \\((.*)\\))?", sqliteSeparator, sqliteSeparator))
 	separatorRegexp    = regexp.MustCompile(fmt.Sprintf("[%v]", sqliteSeparator))
 	columnsRegexp      = regexp.MustCompile(fmt.Sprintf("\\([%v]?([\\w\\d]+)[%v]?(?:,[%v]?([\\w\\d]+)[%v]){0,}\\)", sqliteSeparator, sqliteSeparator, sqliteSeparator, sqliteSeparator))
@@ -32,6 +32,7 @@ func parseDDL(strs ...string) (*ddl, error) {
 		if sections := tableRegexp.FindStringSubmatch(str); len(sections) > 0 {
 			var (
 				ddlBody      = sections[2]
+				ddlBodyRunes = []rune(ddlBody)
 				bracketLevel int
 				quote        rune
 				buf          string
@@ -39,8 +40,11 @@ func parseDDL(strs ...string) (*ddl, error) {
 
 			result.head = sections[1]
 
-			for idx, c := range []rune(ddlBody) {
-				var next rune = 0
+			for idx := 0; idx < len(ddlBodyRunes); idx++ {
+				var (
+					next rune = 0
+					c         = ddlBodyRunes[idx]
+				)
 				if idx+1 < len(ddlBody) {
 					next = []rune(ddlBody)[idx+1]
 				}
