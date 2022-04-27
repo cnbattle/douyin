@@ -74,6 +74,10 @@ func (db *DB) Save(value interface{}) (tx *DB) {
 	tx.Statement.Dest = value
 
 	reflectValue := reflect.Indirect(reflect.ValueOf(value))
+	for reflectValue.Kind() == reflect.Ptr || reflectValue.Kind() == reflect.Interface {
+		reflectValue = reflect.Indirect(reflectValue)
+	}
+
 	switch reflectValue.Kind() {
 	case reflect.Slice, reflect.Array:
 		if _, ok := tx.Statement.Clauses["ON CONFLICT"]; !ok {
@@ -101,7 +105,7 @@ func (db *DB) Save(value interface{}) (tx *DB) {
 
 		if tx.Error == nil && tx.RowsAffected == 0 && !tx.DryRun && !selectedUpdate {
 			result := reflect.New(tx.Statement.Schema.ModelType).Interface()
-			if err := tx.Session(&Session{}).Take(result).Error; errors.Is(err, ErrRecordNotFound) {
+			if result := tx.Session(&Session{}).Limit(1).Find(result); result.RowsAffected == 0 {
 				return tx.Create(value)
 			}
 		}
@@ -177,6 +181,21 @@ func (db *DB) FindInBatches(dest interface{}, batchSize int, fc func(tx *DB, bat
 		batch        int
 	)
 
+	// user specified offset or limit
+	var totalSize int
+	if c, ok := tx.Statement.Clauses["LIMIT"]; ok {
+		if limit, ok := c.Expression.(clause.Limit); ok {
+			totalSize = limit.Limit
+
+			if totalSize > 0 && batchSize > totalSize {
+				batchSize = totalSize
+			}
+
+			// reset to offset to 0 in next batch
+			tx = tx.Offset(-1).Session(&Session{})
+		}
+	}
+
 	for {
 		result := queryDB.Limit(batchSize).Find(dest)
 		rowsAffected += result.RowsAffected
@@ -190,6 +209,15 @@ func (db *DB) FindInBatches(dest interface{}, batchSize int, fc func(tx *DB, bat
 
 		if tx.Error != nil || int(result.RowsAffected) < batchSize {
 			break
+		}
+
+		if totalSize > 0 {
+			if totalSize <= int(rowsAffected) {
+				break
+			}
+			if totalSize/batchSize == batch {
+				batchSize = totalSize % batchSize
+			}
 		}
 
 		// Optimize for-break
@@ -262,7 +290,7 @@ func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
 		Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey},
 	})
 
-	if tx = queryTx.Find(dest, conds...); queryTx.RowsAffected == 0 {
+	if tx = queryTx.Find(dest, conds...); tx.RowsAffected == 0 {
 		if c, ok := tx.Statement.Clauses["WHERE"]; ok {
 			if where, ok := c.Expression.(clause.Where); ok {
 				tx.assignInterfacesToValue(where.Exprs)
@@ -284,25 +312,26 @@ func (db *DB) FirstOrInit(dest interface{}, conds ...interface{}) (tx *DB) {
 
 // FirstOrCreate gets the first matched record or create a new one with given conditions (only works with struct, map conditions)
 func (db *DB) FirstOrCreate(dest interface{}, conds ...interface{}) (tx *DB) {
-	queryTx := db.Limit(1).Order(clause.OrderByColumn{
+	tx = db.getInstance()
+	queryTx := db.Session(&Session{}).Limit(1).Order(clause.OrderByColumn{
 		Column: clause.Column{Table: clause.CurrentTable, Name: clause.PrimaryKey},
 	})
-	if tx = queryTx.Find(dest, conds...); tx.Error == nil {
-		if tx.RowsAffected == 0 {
-			if c, ok := tx.Statement.Clauses["WHERE"]; ok {
+	if result := queryTx.Find(dest, conds...); result.Error == nil {
+		if result.RowsAffected == 0 {
+			if c, ok := result.Statement.Clauses["WHERE"]; ok {
 				if where, ok := c.Expression.(clause.Where); ok {
-					tx.assignInterfacesToValue(where.Exprs)
+					result.assignInterfacesToValue(where.Exprs)
 				}
 			}
 
 			// initialize with attrs, conds
-			if len(tx.Statement.attrs) > 0 {
-				tx.assignInterfacesToValue(tx.Statement.attrs...)
+			if len(db.Statement.attrs) > 0 {
+				result.assignInterfacesToValue(db.Statement.attrs...)
 			}
 
 			// initialize with attrs, conds
-			if len(tx.Statement.assigns) > 0 {
-				tx.assignInterfacesToValue(tx.Statement.assigns...)
+			if len(db.Statement.assigns) > 0 {
+				result.assignInterfacesToValue(db.Statement.assigns...)
 			}
 
 			return tx.Create(dest)
@@ -322,6 +351,8 @@ func (db *DB) FirstOrCreate(dest interface{}, conds ...interface{}) (tx *DB) {
 			}
 
 			return tx.Model(dest).Updates(assigns)
+		} else {
+			tx.Error = result.Error
 		}
 	}
 	return tx

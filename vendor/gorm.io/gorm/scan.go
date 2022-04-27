@@ -74,7 +74,7 @@ func (db *DB) scanIntoStruct(rows Rows, reflectValue reflect.Value, values []int
 				relValue := joinFields[idx][0].ReflectValueOf(db.Statement.Context, reflectValue)
 				if relValue.Kind() == reflect.Ptr && relValue.IsNil() {
 					if value := reflect.ValueOf(values[idx]).Elem(); value.Kind() == reflect.Ptr && value.IsNil() {
-						return
+						continue
 					}
 
 					relValue.Set(reflect.New(relValue.Type().Elem()))
@@ -196,7 +196,7 @@ func Scan(rows Rows, db *DB, mode ScanMode) {
 				for idx, column := range columns {
 					if field := sch.LookUpField(column); field != nil && field.Readable {
 						if curIndex, ok := selectedColumnsMap[column]; ok {
-							for fieldIndex, selectField := range sch.Fields[curIndex:] {
+							for fieldIndex, selectField := range sch.Fields[curIndex+1:] {
 								if selectField.DBName == column && selectField.Readable {
 									selectedColumnsMap[column] = curIndex + fieldIndex + 1
 									fields[idx] = selectField
