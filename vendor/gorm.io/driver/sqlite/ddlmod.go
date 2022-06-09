@@ -37,16 +37,17 @@ func parseDDL(strs ...string) (*ddl, error) {
 				quote        rune
 				buf          string
 			)
+			ddlBodyRunesLen := len(ddlBodyRunes)
 
 			result.head = sections[1]
 
-			for idx := 0; idx < len(ddlBodyRunes); idx++ {
+			for idx := 0; idx < ddlBodyRunesLen; idx++ {
 				var (
 					next rune = 0
 					c         = ddlBodyRunes[idx]
 				)
-				if idx+1 < len(ddlBody) {
-					next = []rune(ddlBody)[idx+1]
+				if idx+1 < ddlBodyRunesLen {
+					next = ddlBodyRunes[idx+1]
 				}
 
 				if sc := string(c); separatorRegexp.MatchString(sc) {
