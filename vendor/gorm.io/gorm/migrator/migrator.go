@@ -223,7 +223,7 @@ func (m Migrator) CreateTable(values ...interface{}) error {
 					}
 
 					createTableSQL += ","
-					values = append(values, clause.Expr{SQL: idx.Name}, tx.Migrator().(BuildIndexOptionsInterface).BuildIndexOptions(idx.Fields, stmt))
+					values = append(values, clause.Column{Name: idx.Name}, tx.Migrator().(BuildIndexOptionsInterface).BuildIndexOptions(idx.Fields, stmt))
 				}
 			}
 
@@ -448,10 +448,20 @@ func (m Migrator) MigrateColumn(value interface{}, field *schema.Field, columnTy
 	}
 
 	// check default value
-	if v, ok := columnType.DefaultValue(); ok && v != field.DefaultValue {
-		// not primary key
-		if !field.PrimaryKey {
+	if !field.PrimaryKey {
+		dv, dvNotNull := columnType.DefaultValue()
+		if dvNotNull && field.DefaultValueInterface == nil {
+			// defalut value -> null
 			alterColumn = true
+		} else if !dvNotNull && field.DefaultValueInterface != nil {
+			// null -> default value
+			alterColumn = true
+		} else if dv != field.DefaultValue {
+			// default value not equal
+			// not both null
+			if !(field.DefaultValueInterface == nil && !dvNotNull) {
+				alterColumn = true
+			}
 		}
 	}
 
@@ -759,7 +769,8 @@ func (m Migrator) ReorderModels(values []interface{}, autoAdd bool) (results []i
 			Statement: &gorm.Statement{DB: m.DB, Dest: value},
 		}
 		beDependedOn := map[*schema.Schema]bool{}
-		if err := dep.Parse(value); err != nil {
+		// support for special table name
+		if err := dep.ParseWithSpecialTableName(value, m.DB.Statement.Table); err != nil {
 			m.DB.Logger.Error(context.Background(), "failed to parse value %#v, got error %v", value, err)
 		}
 		if _, ok := parsedSchemas[dep.Statement.Schema]; ok {
