@@ -351,9 +351,9 @@ func (db *DB) FirstOrCreate(dest interface{}, conds ...interface{}) (tx *DB) {
 			}
 
 			return tx.Model(dest).Updates(assigns)
-		} else {
-			tx.Error = result.Error
 		}
+	} else {
+		tx.Error = result.Error
 	}
 	return tx
 }
@@ -589,8 +589,7 @@ func (db *DB) Transaction(fc func(tx *DB) error, opts ...*sql.TxOptions) (err er
 				}
 			}()
 		}
-
-		err = fc(db.Session(&Session{}))
+		err = fc(db.Session(&Session{NewDB: db.clone == 1}))
 	} else {
 		tx := db.Begin(opts...)
 		if tx.Error != nil {

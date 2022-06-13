@@ -6,7 +6,7 @@ require (
 	github.com/ouqiang/goproxy v1.3.2
 	github.com/spf13/viper v1.12.0
 	gorm.io/driver/sqlite v1.3.4
-	gorm.io/gorm v1.23.5
+	gorm.io/gorm v1.23.6
 )
 
 require (
