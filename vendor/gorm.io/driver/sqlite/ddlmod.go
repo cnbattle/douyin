@@ -13,8 +13,8 @@ import (
 
 var (
 	sqliteSeparator    = "`|\"|'|\t"
-	indexRegexp        = regexp.MustCompile(fmt.Sprintf("CREATE(?: UNIQUE)? INDEX [%v]?[\\w\\d]+[%v]? ON (.*)$", sqliteSeparator, sqliteSeparator))
-	tableRegexp        = regexp.MustCompile(fmt.Sprintf("(?i)(CREATE TABLE [%v]?[\\w\\d]+[%v]?)(?: \\((.*)\\))?", sqliteSeparator, sqliteSeparator))
+	indexRegexp        = regexp.MustCompile(fmt.Sprintf("CREATE(?: UNIQUE)? INDEX [%v]?[\\w\\d-]+[%v]? ON (.*)$", sqliteSeparator, sqliteSeparator))
+	tableRegexp        = regexp.MustCompile(fmt.Sprintf("(?i)(CREATE TABLE [%v]?[\\w\\d-]+[%v]?)(?: \\((.*)\\))?", sqliteSeparator, sqliteSeparator))
 	separatorRegexp    = regexp.MustCompile(fmt.Sprintf("[%v]", sqliteSeparator))
 	columnsRegexp      = regexp.MustCompile(fmt.Sprintf("\\([%v]?([\\w\\d]+)[%v]?(?:,[%v]?([\\w\\d]+)[%v]){0,}\\)", sqliteSeparator, sqliteSeparator, sqliteSeparator, sqliteSeparator))
 	columnRegexp       = regexp.MustCompile(fmt.Sprintf("^[%v]?([\\w\\d]+)[%v]?\\s+([\\w\\(\\)\\d]+)(.*)$", sqliteSeparator, sqliteSeparator))
@@ -118,7 +118,7 @@ func parseDDL(strs ...string) (*ddl, error) {
 						PrimaryKeyValue:   sql.NullBool{Valid: true},
 						UniqueValue:       sql.NullBool{Valid: true},
 						NullableValue:     sql.NullBool{Valid: true},
-						DefaultValueValue: sql.NullString{Valid: true},
+						DefaultValueValue: sql.NullString{Valid: false},
 					}
 
 					matchUpper := strings.ToUpper(matches[3])
