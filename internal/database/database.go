@@ -3,7 +3,6 @@ package database
 import (
 	"github.com/cnbattle/douyin/internal/database/model"
 	"gorm.io/driver/sqlite"
-	_ "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
 )
