@@ -2,9 +2,11 @@ package database
 
 import (
 	"github.com/cnbattle/douyin/internal/database/model"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	// "gorm.io/driver/sqlite"
 	"log"
+
+	"github.com/glebarez/sqlite"
+	"gorm.io/gorm"
 )
 
 var (

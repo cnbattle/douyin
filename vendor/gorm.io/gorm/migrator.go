@@ -56,6 +56,14 @@ type Index interface {
 	Option() string
 }
 
+// TableType table type interface
+type TableType interface {
+	Schema() string
+	Name() string
+	Type() string
+	Comment() (comment string, ok bool)
+}
+
 // Migrator migrator interface
 type Migrator interface {
 	// AutoMigrate
@@ -72,12 +80,15 @@ type Migrator interface {
 	HasTable(dst interface{}) bool
 	RenameTable(oldName, newName interface{}) error
 	GetTables() (tableList []string, err error)
+	TableType(dst interface{}) (TableType, error)
 
 	// Columns
 	AddColumn(dst interface{}, field string) error
 	DropColumn(dst interface{}, field string) error
 	AlterColumn(dst interface{}, field string) error
 	MigrateColumn(dst interface{}, field *schema.Field, columnType ColumnType) error
+	// MigrateColumnUnique migrate column's UNIQUE constraint, it's part of MigrateColumn.
+	MigrateColumnUnique(dst interface{}, field *schema.Field, columnType ColumnType) error
 	HasColumn(dst interface{}, field string) bool
 	RenameColumn(dst interface{}, oldName, field string) error
 	ColumnTypes(dst interface{}) ([]ColumnType, error)
