@@ -1,6 +1,6 @@
 module github.com/cnbattle/douyin
 
-go 1.18
+go 1.22
 
 require (
 	github.com/glebarez/sqlite v1.11.0
